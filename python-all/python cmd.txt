@@ -1,0 +1,90 @@
+pip install opencv-python => Facial Recognition
+pip install pipenv 
+pipenv install flask
+NOTE: If you receive an error using pipenv, you may need to import it as a module first before it can be run as a script. You can do so using the -m flag as below. You will need to do this every time you use pipenv.
+
+Windows:
+
+python -m pipenv <command to use>
+pipenv shell
+pip list
+pipenv install flask-bcrypt
+.env
+pipenv install python-dotenv
+pipenv install requests
+******
+import requests
+from flask_app import app
+import os
+from flask import jsonify, requests
+@app.route('/searching',methods=['POST']):
+    print(request.form['query'])
+    # now we inject the query into our string
+    r = requests.get(f"https:api.information.com/{os.environ.get('FLASK_API_KEY')}/search?={request.form['query']}")
+    # we must keep in line with JSON format.
+    # requests has a method to convert the data coming back into JSON.
+    return jsonify( r.json() )
+//////
+<form id="searchForm" onsubmit="search(event)" >
+    <h2>Search</h2>
+    <input type="text" name="query">
+    <input type="submit" value="Search" >
+</form>
+////////
+function search(e){
+    e.preventDefault();
+    var searchForm = document.getElementById('searchForm')
+    var form = new FormData(searchForm);
+    fetch('http://localhost:5000/search',{method:'POST',body:form})
+        .then(res => res.json() )
+        .then( data => console.log(data) )
+}
+*********
+
+Fetch Method
+
+fetch("https://api.github.com/users/adion81")
+    .then(response => response.json() )
+    .then(coderData => console.log(coderData) )
+    .catch(err => console.log(err) )
+
+Using promises looks almost like a chain reaction.  We make the request using fetch, then we wait for the data to come back, then we convert it to JSON. If there are any errors with the request, we can attach a catch to see the errors coming back.
+
+Note: If you noticed the arrow syntax in the code above, those are called arrow functions.  Simply put, they are a more compact way of expressing a function.  For more documentation on Arrow Functions.
+
+Using Async/Await:
+
+async function getCoderData() {
+    // The await keyword lets js know that it needs to wait until it gets a response back to continue.
+    var response = await fetch("https://api.github.com/users/adion81");
+    // We then need to convert the data into JSON format.
+    var coderData = await response.json();
+    return coderData;
+}
+    
+console.log(getCoderData());copy
+When using Async/Await we apply the async keyword to the function, and we must wait for the data to come back.  In order accomplish and ensure that we always return the data after it comes back we use the await keyword.  
+
+
+
+
+Initialize a repository prior to creating a server
+Getting Started
+pipenv lock -r > requirements.txt
+Note: if the above command throws an error, you are running on a newer version of pipenv and should instead use:
+
+pipenv requirements > requirements.txt
+touch .gitignore
+
+********************************************************************************************
+
+VIM
+If you have used VIM before, skip to the next tab.
+
+VIM is a terminal based file editor. We will use it to change the necessary files in order to get our project running. In the following instructions, you'll be using the vimcommand to enter the editor. The vim command can be used either to edit existing files or create and open a new blank file. Once you have entered the editor interface, press i to enter INSERT mode. You should see –INSERT– at the bottom left corner of your terminal. Now use your arrow keys to move the cursor to where you want to edit and make your changes.
+
+Once you are done, press the esc key to exit INSERT mode. Type a colon to enter the vim command interface. You should now see a colon at the bottom left corner of your terminal. Now, type wq and press return to write (save) and quit.
+
+If you want to quit without saving, type q! after the colon.
+
+If you'd like to save without quitting, type w after the colon.

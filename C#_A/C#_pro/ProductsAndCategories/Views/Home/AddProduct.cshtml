@@ -1,0 +1,50 @@
+@model Product
+@* <partial name="_Header"/> *@
+<div class="row">
+    <div class="col-6">
+        <h1>Add Your Product</h1>
+    </div>
+    <div class="col-3">
+        <a asp-action="Dashboard" class="btn btn-info btn-lg">Dashboard</a>
+    </div>
+</div>
+<br>
+<br>
+<div class="row">
+    <div class="col-6">
+        <form action="/product/add" method="post">
+            <div class="form-group">
+                <label for="" class="form-label">Name</label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+                <input asp-for="Name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="" class="form-label">Description</label>
+                <span asp-validation-for="Description" class="text-danger"></span>
+                <input asp-for="Description" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="" class="form-label">Price</label>
+                <span asp-validation-for="Price" class="text-danger"></span>
+                <input asp-for="Price" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="" class="form-label">Quantity</label>
+                <span asp-validation-for="Quantity"  class="text-danger"></span>
+                <input asp-for="Quantity" class="form-control">
+            </div>
+            <input type="submit" value="Add Product" class="form-control btn btn-secondary btn-lg">
+        </form>
+    </div>
+    <div class="col-6">
+        <h1 class="text-center"> All Products</h1>
+        <ul class="list-group">
+            @foreach (Product p in ViewBag.AllProducts)
+        {
+           <li class="btn btn-primary btn-sm" ><a href="/products/@p.ProductId"  class="text-decoration-none h4 text-light"> @p.Name</a></li>
+           <br>
+        }
+        </ul>
+        
+    </div>
+</div>

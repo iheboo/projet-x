@@ -1,0 +1,56 @@
+@model Association
+
+<div class="row">
+    <div class="col-3">
+        <a asp-action="AddProduct" class="btn btn-warning btn-lg">Products</a>
+    </div>
+    <div class="col-3">
+        <a asp-action="AddCategory" class="btn btn-success btn-lg">Categories</a>
+    </div>
+    <div class="col-3">
+        <a asp-action="AddOrder" class="btn btn-info btn-lg">Orders</a>
+    </div>
+     <div class="col-3">
+        <a asp-action="Dashboard" class="btn btn-primary btn-lg">Dashboard</a>
+    </div>
+</div>
+<h1>@ViewBag.Category.Name</h1>
+<div class="row">
+    <div class="col-6">
+        <h3 class="text-center">My Products</h3>
+        <ul class="list-group">
+             @foreach (Association a in ViewBag.Category.CategoryProducts)
+             {
+                <li class="btn btn-outline-primary btn-sm"><a href="/products/@a.Product.ProductId" class="text-decoration-none h4 text-dark ">@a.Product.Name</a></li>
+                <br>
+             }
+        </ul>
+        
+    </div>
+     <div class="col-6">
+        <form action="/assocation/addCat/@ViewBag.Category.CategoryId" method="post">
+            <div class="form-group">
+                <label for="" class="form-label">Add Product</label>
+                <select asp-for="ProductId" class="form-control">
+                    @foreach (Product p in ViewBag.NotMyProducts)
+                    {
+                        <option value="@p.ProductId">@p.Name</option>
+                    }
+                </select>
+            </div>
+            <br>
+            <input type="submit" value="Add Association " class="form-control btn btn-primary btn-lg">
+        </form>
+    </div>
+</div>
+<br>
+<hr>
+<div>
+    <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">@ViewBag.Category.Name</h5>
+                <p>Created At :  @ViewBag.Category.CreatedAt</p>
+                @* <p>Updated At :  @ViewBag.Category.UpdatedAt</p> *@
+            </div>
+        </div>
+</div>

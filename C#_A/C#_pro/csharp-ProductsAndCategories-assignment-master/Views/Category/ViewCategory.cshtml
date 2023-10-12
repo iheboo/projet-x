@@ -1,0 +1,42 @@
+@model Category
+@{
+  #pragma warning disable CS8600
+  #pragma warning disable CS8602
+}
+<div class="container mt-3">
+  <div class="text-center border rounded">
+    <h1 class="display-4">@Model.Name</h1>
+  </div>
+  <div class="row">
+  <div class="col-md-6">
+    <h3>Products</h3>
+    <table>
+      <tbody>
+        @foreach (var association in Model.AllAssociations)
+        {
+          if (association.Product != null)
+          {
+            <tr><td>@association.Product.Name</td></tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-6">
+    <h3>Add Category</h3>
+    <form asp-action="AddProductToCategory" asp-controller="Category" method="post">
+      <input type="hidden" name="CategoryId" value="@Model.CategoryId" />
+      <select name="ProductId">
+        @foreach (var product in (List<Product>)ViewData["AvailableProducts"])
+        {
+          if (!Model.AllAssociations.Any(a => a.ProductId == product.ProductId))
+          {
+            <option value="@product.ProductId">@product.Name</option>
+          }
+        }
+      </select>
+      <button type="submit">Add</button>
+    </form>
+  </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+cd projects/pem_keys
+
+sudo apt-get update
+sudo apt-get install python3-pip nginx git -y
+sudo apt-get update
+
+sudo apt-get install python3-venv                      // answer Yes when prompted!
+
+sudo apt-get install mysql-server                      // answer Yes when prompted!
+sudo apt-get update
+
+sudo mysql -uroot -p
+# enter the same password as MySQL on your computer when prompted
+
+sudo mysql_secure_installation
+
+mysql -uroot -p
+# enter password when prompted
+
+SHOW DATABASES;
+
+exit
+
+git clone {{ url copied from github project }}
+cd {{ project }}
+
+~/myRepoName$ python3 -m venv venv          // create the environment and call it venv
+~/myRepoName$ source venv/bin/activate                    // activate the environment
+(venv) ~/myRepoName$ pip3 install -r requirements.txt      // install everything that requirements.txt says you need
+(venv) ~/myRepoName$ pip3 install gunicorn==19.6.0         // install gunicorn
+(venv) ~/myRepoName$ pip3 install {{anything you need that was not already in requirements.txt}}
+
+
+Now, we need a wsgi.py file, which will help Gunicorn, our process manager, know how to interact with the application. We will use vim as our text editor to make our files.
+(venv) ~/myRepoName$ sudo vim wsgi.py                     // this will open the new, empty file for us
+
+from server import app as application
+if __name__ == "__main__":
+    application.run()
+
+(venv) ~/myRepoName$ gunicorn --bind 0.0.0.0:5000 wsgi:application
+
+If your Gunicorn process ran correctly, you will see something like the following printed to the terminal:
+
+[2016-12-27 05:45:56 +0000] [8695] [INFO] Starting gunicorn 19.6.0
+[2016-12-27 05:45:56 +0000] [8695] [INFO] Listening at: http://0.0.0.0:5000 (8695)
+[2016-12-27 05:45:56 +0000] [8695] [INFO] Using worker: sync
+[2016-12-27 05:45:56 +0000] [8700] [INFO] Booting worker with pid: 8700
+
+(venv) ~/myRepoName$ deactivate
+sudo vim /etc/systemd/system/gunicorn.service
+
+In this file you just created, we will need the following (everywhere you see {{username}}, replace that with the username you created for your server):
+
+[Unit]
+Description=Gunicorn instance
+After=network.target
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/{{repo name}}
+Environment="PATH=/home/ubuntu/{{repo name}}/venv/bin"
+ExecStart=/home/ubuntu/{{repo name}}/venv/bin/gunicorn --workers 3 --bind unix:{{project}}.sock -m 007 wsgi:application
+[Install]
+WantedBy=multi-user.target
+After we create this file, we need to enable it, so that it starts when the server boots:
+
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+
+Nginx
+Now, we just need to configure nginx to handle requests made by the server. Let's create a new file in sites-available.
+
+sudo vim /etc/nginx/sites-available/{{project}}
+In this file, we will need the following:
+
+server {
+    listen 80;
+    server_name {{your public ip}};
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/{{repo name}}/{{project}}.sock;
+    }
+}
+Now, we need to link this nginx configuration to our sites-enabled directory.
+
+sudo ln -s /etc/nginx/sites-available/{{project}} /etc/nginx/sites-enabled
+Test nginx for errors:
+
+sudo nginx -t
+
+**************************
+Wrapping Up
+We will remove the Nginx default site display from directory sites-enabled, by running the following in your terminal.
+
+sudo rm /etc/nginx/sites-enabled/default
+Now, all that is left to do is restart your Nginx server.
+
+sudo service nginx restart
+If your server restarted correctly, you will see the new command line, and your app is deployed! Go to the public domain and your app should be there.
+
+If you see anything other than your app, review your server file for errors.
+
+To exit the remote server, type:
+
+exit
+Common errors and how to find them:
+502, bad gateway: there is a problem in your code. Hint: any error starting with 5 indicates a server error
+Verify that the correct version of Gunicorn was installed. Check the directions on "Server Configuration" to verify if a specific version was asked for and run the command again if needed.
+Still getting a 502 error after verifying the correct version of Gunicorn was installed: go back to the gunicorn.services file sudo vim /etc/systemd/system/gunicorn.service and replace Group=www-data with Group=root. Restart nginx with sudo service nginx restart and refresh your browser.
+Your Gunicorn process won’t start: Check your .service file; typos and wrong file paths are common mistakes
+Your NGINX restart fails: Check your NGINX file in the sites-available directory. Common problems include typos and forgetting to insert your project name where indicated.
+Make sure the URL requested is correct (example if your root route is /home, make sure you put /home after the IP)
+Ensure your URL has http:// instead of https://. The link from your EC2 instance will automatically insert https:// into the URL.

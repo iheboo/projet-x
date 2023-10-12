@@ -1,0 +1,14 @@
+Debugging Your JS Code
+There are various ways to test and debug JavaScript code using artificial environments such as JSBin or plugins for your code editor. However, we prefer the real-world JS environment that truly matters: browsers. This way you test your code in a way that doesn’t emulate the real-world: it is the real-world environment. Here are steps for one workflow that uses both editor and browser when creating/testing:
+
+Go to Sublime/Atom, create a new file with the HTML file extension, and save it.
+Within that file, type HTML and hit [tab]. Sublime will create the basic HTML tags for you.
+Within the <head> section, type script and again hit [tab], to create <script> tags. You can delete the other attributes inside the <script> tag, as well as the <style> and even <body> tags; you don’t need those if all you are doing is writing/testing JavaScript.
+As the very first line after the <script> tag, always include "use strict"; .
+Now write JS code as you wish. Remember to save as you go, of course.
+When you are ready to test your code (which should be early and often), right-click on the Sublime file and select “Open in Browser”.
+Your default browser will open a window. We prefer Chrome for testing JS, but any browser is fine. Within that window, open the Developer Console (the MacOS key sequence is cmd-opt-J).
+Type JS into the console such as returnGreaterThanSecond([1,3,5,7,9,11,15]) or var arr=[];returnGreaterThanSecond(arr) or printOdds() to exercise your code.
+To change or add to your code, cmd-tab back to Sublime/Atom, make your change, then Save.
+Switch back to browser and Refresh, returning to step 8. You will soon memorize the quick-key sequence for saving in Sublime, returning to the browser, and refreshing (cmd-s, cmd-tab, cmd-r).
+Ultimately, your JavaScript code will run in the browser JS runtime environment, rather than an artificial environment such as JSBin. They produce slightly different results sometimes

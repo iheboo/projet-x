@@ -1,0 +1,111 @@
+
+dotnet new web --no-https -o ProjectName
+  setx ASPNETCORE_ENVIRONMENT Development
+PowerShell
+    [Environment]::SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT","Development","User")
+dotnet watch run
+
+dotnet tool install --global dotnet-ef
+
+echo 'export PATH=${PATH}:/usr/local/mysql/bin' >> ~/.zshrc && source ~/.zshrc
+
+Let's take a look at what line is doing.
+
+echo will write to a file.
+export PATH=${PATH}:/usr/local/mysql/bin
+export at the beginning makes the value available to programs that you run from the terminal
+PATH= sets the value of the PATH variable
+${PATH} expands to the current value
+/usr/local/mysql/bin is the location of the mysql executable we just installed.
+>> will append to a file.
+~/.zshrc is a file that the terminal window will look at for any commands to run.
+&& will run another command.
+source ~/.zshrc will execute the changes made and make them available in the terminal window.
+
+mysql -u root -p
+NET STOP MYSQL
+NET START MYSQL
+
+public: No access restrictions
+private: Access restricted to own class
+protected: Access restricted to its own class and any of your children's classes
+internal: Access restricted to Assembly (essentially, your project's compiled .dll)
+
+public class Bird : Animal, ILayEggs
+{
+    public bool CanFly;
+    // Our EggsPerBatch from our interface
+    public int EggsPerBatch {get;set;}
+    public Bird(bool canfly, string diet, int epb) : base("Bird", diet, true)
+    {
+        CanFly = canfly;
+        EggsPerBatch = epb;
+    }
+    // Filling out the LayEggs method from our interface
+    public void LayEggs()
+    {
+        Console.WriteLine($"{Name} laid {EggsPerBatch} egg(s)!");
+    }
+    public override void ShowInfo()
+    {
+        base.ShowInfo();
+        Console.WriteLine($"Can Fly: {CanFly}");
+    }
+}
+
+abstract class Animal
+{
+    public string Name;
+    public string Diet;
+    public bool IsMammal;
+    public Animal(string name, string diet, bool ismammal)
+    {
+        Name = name;
+        Diet = diet;
+        IsMammal = ismammal;
+    }
+    public virtual void ShowInfo()
+    {
+        Console.WriteLine($"Name: {Name}");
+        Console.WriteLine($"Diet: {Diet}");
+        Console.WriteLine($"Mammal: {IsMammal}");
+    }
+}
+Select "Settings" from File > Preferences > Settings
+Type "emmet" into the search window, select "Edit in settings.json", scroll down to "Emmet: Included Languages", click the "Add Item" button, and add the appropriate item-value pairs as shown below:
+
+
+    dotnet new viewimports -o Views
+    // and
+    dotnet new viewstart -o Views
+#pragma warning disable CS8618
+
+
+Tools: dotnet-ef
+At the beginning of the course, you should have installed the following CLI tool: 
+
+dotnet tool install --global dotnet-ef
+This is a global installation, meaning we only need to do this once on our computer. If you followed the installation instructions carefully, you do not need to take this step again! However, if you skipped over any parts, you may want to check that the tool is in use by typing: 
+
+dotnet ef
+dotnet add package Pomelo.EntityFrameworkCore.MySql --version 6.0.1
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.3
+
+Dependency Injection (to our Controller)
+We now have our context class relating to our database, and we've added it to our application as a service.  This means we can add a new field in our controller class for our context class's type - MyContext - and initialize this field in the controller's constructor method - where the service can be injected.  This means our database context is available to any and all of our controller's methods!
+
+Migrations are created using the Entity Framework command line tools. From the console we can create migrations like so:
+
+    dotnet ef migrations add YourMigrationName
+Let's create an initial migration:
+
+    dotnet ef migrations add FirstMigration
+
+dotnet ef database update
+
+Dependency Injection
+The basic premise of dependency injection is that rather than make tightly-coupled associations between classes using inheritance, you can provide objects that any class might need, known here as services, to a shared container. Anytime a class requires one of these services, you can inject that object into the class.
+
+
+
+

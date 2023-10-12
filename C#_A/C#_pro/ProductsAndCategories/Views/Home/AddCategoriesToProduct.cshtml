@@ -1,0 +1,66 @@
+@model Association
+
+<div class="row">
+    <div class="col-3">
+        <a asp-action="AddProduct" class="btn btn-warning btn-lg">Products</a>
+    </div>
+    <div class="col-3">
+        <a asp-action="AddCategory" class="btn btn-success btn-lg">Categories</a>
+    </div>
+    <div class="col-3">
+        <a asp-action="AddOrder" class="btn btn-info btn-lg">Orders</a>
+    </div>
+     <div class="col-3">
+        <a asp-action="Dashboard" class="btn btn-primary btn-lg">Dashboard</a>
+    </div>
+</div>
+<br>
+<h1>@ViewBag.Product.Name</h1>
+<div class="row">
+    <div class="col-6">
+        <h3 class="text-center text-secondary">Categories</h3>
+        <ul class="list-group">
+             @foreach (Association a in ViewBag.Product.ProductCategories)
+             {
+                <li class="btn btn-outline-primary btn-sm"> <a href="/categories/@a.Category.CategoryId" class="text-decoration-none h4 ">@a.Category.Name</a></li>
+                <br>
+             }
+        </ul>
+        
+    </div>
+     <div class="col-6">
+        <form action="/assocation/add/@ViewBag.Product.ProductId" method="post">
+        <div class="form-group">
+            <label for="" class="form-label">Add Category</label>
+            <select asp-for="CategoryId" class="form-control">
+                @foreach (Category c in ViewBag.NotMyCategories)
+                {
+                    <option value="@c.CategoryId">@c.Name</option>
+                }
+            </select>
+        </div>
+        <br>
+        <input type="submit" value="Add Association" class=" form-control btn btn-primary btn-lg">
+        </form>
+    </div>
+</div>
+<br>
+<hr>
+<div>
+    <table class="table table-striped">
+        <tr>
+            <th>Product Name </th>
+            <th>Description </th>
+            <th>Price </th>
+            <th>Available Quantity</th>
+            <th>Owner </th>
+        </tr>
+        <tr>
+            <td class="table-info">@ViewBag.Product.Name</td>
+            <td class="table-success">@ViewBag.Product.Description</td>
+            <td class="table-info">$@ViewBag.Product.Price</td>
+            <td class="table-success">@ViewBag.Product.Quantity</td>
+            <td class="table-info">@ViewBag.Product.User.FirstName @ViewBag.Product.User.LastName</td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,61 @@
+@model User
+<partial name="_Header"/>
+<div class="row ">
+    <div class="col-4">
+        <a asp-action="AddProduct" class="btn btn-info btn-lg">➕ Add Product ➕</a>
+    </div>
+    <div class="col-4">
+        <a asp-action="AddCategory" class="btn btn-dark btn-lg">⚙ Add Category ⚙</a>
+    </div>
+    <div class="col-4">
+        <a asp-action="AddOrder" class="btn btn-primary btn-lg ">🛒 Add Order 🛒</a>
+    </div>
+</div>
+<br>
+<hr>
+<br>
+<div class="row">
+    <div class="col-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">😎 My Products 😎</h5>
+                <br>
+                <ul class="list-group">
+                    @foreach (Product p in @Model.MyProducts)
+                    {
+                        <li class="btn btn-primary btn-sm"><a href="/products/@p.ProductId" class="text-decoration-none h4 text-light">@p.Name (@p.Quantity)</a></li>
+                        <br>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+     <div class="col-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">🤩 My Orders 🤩</h5>
+                <ul class="list-group">
+                    @foreach (Order o in ViewBag.MyOrders)
+                    {
+                        <li class="btn btn-success btn-sm"><a href="" class="text-decoration-none h4 text-light">@o.Product.Name (@o.Quantity)</a></li>
+                        <br>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+     <div class="col-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">🤑 My Sellings 🤑</h5>
+                <ul class="list-group">
+                    @foreach (Order o in ViewBag.MySellings)
+                    {
+                        <li class="btn btn-secondary  btn-sm"><a href="" class="text-decoration-none h4 text-light">@o.Product.Name (@o.Quantity)</a></li>
+                        <br>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,279 @@
+Getting our code onto the server instance
+Now that we can SSH into our instance, we can install the software needed to run a MERN app. From your SSH terminal, let's start running some commands.
+
+/*/*/*/**/*/*/*/*/*/*/*/**/*/*/
+
+sudo apt update
+sudo apt install nodejs npm nginx git -y
+
+nodejs -v
+# this should print out version 10.19.0
+curl -sL https://deb.nodesource.com/setup_lts.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+node -v
+# this should now print out version 14.7.0 or newer
+sudo apt install build-essential
+
+git clone https://github.com/your_github_username/MERN-Deployment.git
+
+export repoName=MERN-Deployment
+echo $repoName
+
+cd ~/$repoName/client
+sudo rm -rf /var/www/html 
+sudo mv build /var/www/html
+sudo service nginx restart
+sudo grep -rl localhost /var/www/html | xargs sed -i 's/http:\/\/localhost:8000//g'
+cd ~/$repoName/server
+npm i
+$ wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+$ echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+$ sudo apt update
+$ sudo apt install -y mongodb-org
+$ sudo service mongod start
+$ service mongod status
+
+sudo rm /etc/nginx/sites-available/default
+sudo vim /etc/nginx/sites-available/default
+
+# MERN-Deployment Configuration 1-16-2020
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name MERN-Deployment;
+    location /api {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;    
+    }
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    error_page 404 /index.html;
+}
+
+cd ~/$repoName/server
+sudo service nginx restart
+node server.js
+
+sudo npm i pm2 -g
+pm2 start server.js
+pm2 status
+
+
+*******************
+Updating your code and refreshing your installation:
+If you find a bug and want to fix it...or just add some fun extras so you can show this off to friends, do the following:
+
+Update your code and test it on your local computer.
+Stage and commit your code to your git repository using the command line or your VSCode editor's tools
+Push the changes up to github: git push
+Connect via SSH to your instance as described above
+
+Change directory in to your project folder: cd ~/MERN-Deployment
+Stop the PM2 process daemon: pm2 stop all
+This should stop the express/node server
+Pull the recent changes from github using: git pull
+Change directory in to the client folder: cd client
+Rebuild the React App: npm run build
+Stop the currently running nginx process:  
+sudo service nginx stop
+sudo service nginx status <-- verify that it is "inactive"
+Replace the running React App and remember to update the URLs using grep and sed:
+sudo rm -rf /var/www/html
+sudo mv build /var/www/html
+sudo grep -rl localhost /var/www/html | xargs sed -i 's/http:\/\/localhost:8000//g'
+Restart the PM2 process: pm2 restart all
+This should restart your express/node server
+Restart the React app
+sudo service nginx restart
+sudo service nginx status <-- verify that it is "active (running)"
+To view the server logs while using PM2, run the following command:
+
+sudo pm2 logs
+To exit viewing the logs use: 
+
+CTRL + c
+
+
+Nginx
+First, let's make sure all of our packages are up to date by running this command:
+
+sudo apt update
+Now run this command to get going and install nginx:
+
+sudo apt install nginx -y
+
+After you sudo vim into a file, press the "i" key to be able to insert text into the document. (The word --INSERT-- should appear at the bottom of the screen.) At this point, you will need to use your arrow keys to move around the document. When you have made the necessary changes, press the Esc key, followed by :wq and press enter. "w" is to save your file, "q" is to quit out of vim.
+
+sudo rm /etc/nginx/sites-available/default
+sudo vim /etc/nginx/sites-available/default
+IMPORTANT: This next step will require you to edit part of the following code! Open your project up in VS Code or GitHub and take a look in the properties folder for the file launchsettings.json. On line 15 you will see a line of code that says: "applicationUrl": "http://localhost:5052", except instead of 5052 you will likely see some other number in the 5000 range. Take note of what this number is. You will need it.
+
+Now paste the following code into the file you opened using vim in your ubuntu server and change the port where indicated:
+
+server {    
+    listen 80;    
+    location / {        
+        proxy_pass http://localhost:5000[replace 5000 with your port from launchsettings.json];        
+        proxy_http_version 1.1;        
+        proxy_set_header Upgrade $http_upgrade;        
+        proxy_set_header Connection keep-alive;        
+        proxy_set_header Host $host;        
+        proxy_cache_bypass $http_upgrade;    
+    }
+}
+Now, whenever traffic comes over the default HTTP port of 80 it will be directed to localhost port 5000 where Kestrel is running and vice versa.
+
+All we need to do from here is run
+
+sudo service nginx restart
+to get it working with this new configuration and we are done.
+
+MySQL
+Next, let's move on to getting our MySql database server installed and set up.
+
+Install MySql Server to your EC2 instance using the following command.
+
+sudo apt update
+sudo apt install mysql-server -y
+sudo mysql
+Once inside the MySQL shell enter the following SQL commands....
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+FLUSH PRIVILEGES;
+exit;
+Important: if these commands prompt you to set a password, use "root". If it does not prompt you, do not worry.
+
+We now have a MySQL server installed, but to get the tables for our application up to MySQL, we will use dotnet Code First migrations to do the heavy lifting. Once we get our dotnet SDK software installed, we can complete this step.
+
+Dotnet SDK
+At this point, we've set up our EC2 instance, installed and configured nginx, and setup a database server. We are ready to move on to the next component of having our app deployed to the web: getting dotnet on our server instance. The following commands can be run anywhere on our instance, but the user folder is always a good spot cd ~
+
+Download a Microsoft product key
+Note: this is all one long command
+
+wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+Register the Microsoft packages to the package manager
+sudo dpkg -i packages-microsoft-prod.deb
+Now, run the following commands to update the package manager with the newly registered packages
+sudo apt-get install apt-transport-https
+sudo apt-get update
+Now we can download the dotnet SDK!
+sudo apt-get install -y dotnet-sdk-6.0
+Installing dotnet-ef tooling
+dotnet tool install dotnet-ef --global
+After this installation, we will need to reboot the server to ensure we can use dotnet properly.
+
+We will get logged out of the ssh when this happens. Wait a minute for the server instance to reboot then ssh back in...
+
+sudo reboot
+# this will take a minute, after that ssh back in
+ssh -i "keyname.pem" ubuntu@ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com
+
+
+.gitignore
+First, make sure your server has git installed by running sudo apt-get install git .
+If you have not already done so at this point, it is advisable to create a .gitignore file in your project so that your appsettings.json file is not uploaded to the internet. Especially if your userid and password are anything other than "root". (Remember before when we talked about the security issues of people being able to see your password?) We will be able to put this information back in from the remote server, so we won't lose anything.
+
+To make a .gitignore, either open your project in your text editor or navigate to it in a separate terminal from the one that is currently running your deployment server. In the root project directory, make a file called .gitignore (the . before is very important, make sure your file is not accidentally saved as a .txt or anything else.)
+
+Inside the file, add this line of code:
+
+appsettings.json
+That is all we need to make sure that when we upload our project to Github in the next step that our sensitive data isn't being uploaded as well.
+
+With that done, we can proceed to uploading to Github:
+
+Push your local app to Github or an appropriate remote repository.
+Initialize an empty git repo at the root of your project directory.
+Add and Commit your changes
+Have a repo at GitHub ready to go (Tip: to make setup later easier, give your repo the same name as whatever you called your project)
+Push your local changes to your remote GitHub repo (check to see that your gitignore worked and the file is not there)
+Navigate to /var/www on your remote server
+cd /var/www
+Using the link to your remote repository copy the files to the remote using
+sudo git clone <remote_repo_url>
+
+
+Now that we have our code on our server, we need to grant permissions to this new directory to our EC2 instance users.
+
+sudo chown -R ubuntu <new_dir_name>
+appsettings.json
+If you have properly included your appsettings.json file in your GitHub repo's .gitignore file, it will be absent from your project once you have cloned it. In which case you will just have to add this file back in using vim/nano to your project's working directory, where it exists in your local project (next to your .csproj file, etc). Navigate to this directory (you can simply cd into it as you would in a normal terminal), and copy the contents of your local appsettings file.
+
+A few things to be aware of:
+This connection string is hooking up to the MySQL installed on your remote server. This is NOT your personal version. As such, you must be aware of these potential differences:
+
+Userid: will be root, this is the default user for MySQL.
+Password: will be whatever password you put in when you installed MySQL earlier on the remote server. Ideally, you should have called it "root". If you had not been prompted to set up a password, it is root by default.
+Port: will be 3306. If you are using MAMP or had to make any changes to your port in order to get MySQL to work on your local computer, those things will not be present in the remote server.
+Database: will be whatever you called your database locally.
+sudo vim appsettings.json
+{  
+    "ConnectionStrings":
+    {
+        "DefaultConnection": "Server=localhost;port=3306;userid=root;password=root;database=dbname;"
+    }
+}
+Note: You may want to name the database something more descriptive than "dbname".
+
+Migrate/Update your database tables
+Now that we have the dotnet SDK software installed, we can complete the job of getting our database tables in our MySQL database server.
+
+Navigate to your project's working directory (cd <YourRepoName>) and run the following commands to complete this crucial step:
+
+dotnet restore
+# if our migrations folder is already present we do not need to re-migrate
+dotnet ef migrations add MigrationName
+# we do need to update the database to set create the MySQL schema
+dotnet ef database update
+Now, we can run dotnet run to get our app up and running. We can make sure that it all worked out as intended by navigating to the public IP of the server and we should see our running application. However, if you were to close your Ubuntu terminal now, your app would stop running on the EC2 instance! In the next section, we'll learn how to keep our project running even after we end our connection.
+
+Go ahead and stop dotnet from running (a simple CTRL + c will do) and head to the next section. We're almost done!
+
+ASP.NET with Supervisor
+By default, ASP.NET Core apps always run in the foreground. This means that the terminal can't do anything else while the app is running, and it also means the terminal can't be closed without stopping our project. We can't leave our Ubuntu connection terminal open forever, and we wouldn't want to anyway. The solution is to run our app as a Daemon. A Daemon is a process that runs in the background without us needing to maintain constant control over it. In order to Daemonize our app, we're going to use a process manager called Supervisor.
+
+First, we need to install Supervisor:
+
+sudo apt install supervisor -y
+Next, we need to publish our app. Navigate to your project on the server and run
+
+dotnet publish
+The publish command creates all the files needed for our app to run in a deployment environment (when we deployed to Azure, it ran publish for us).
+
+Next, we need to tell Supervisor how to run our published app. Navigate to Supervisor's configuration folder:
+
+cd /etc/supervisor/conf.d
+Now we can create the configuration for our specific project. Use sudo Vim or Nano to create and start editing the file in one command:
+
+sudo vim yourprojectname.conf
+Add the following code to the new file, substituting the name of your App and Repo:
+
+yourAppName is the name of your project's .csproj file.
+
+yourRepoName is the name of your project's directory.
+
+On the third to last line, it will ask for your port in ASPNETCORE_URLS. Update port 5000 to the port you used earlier from launchsettings.json.
+
+[program:yourAppname]
+command=/usr/bin/dotnet  /var/www/yourReponame/bin/Debug/net6.0/publish/yourAppname.dll
+directory=/var/www/yourReponame/bin/Debug/net6.0/publish
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/yourAppname.err.log
+stdout_logfile=/var/log/yourAppname.out.log
+environment=ASPNETCORE_ENVIRONMENT=Production,ASPNETCORE_URLS="http://*:5000[update this]/"
+user=www-data
+stopsignal=INT
+Now when we restart Supervisor, this conf file provides instructions for how to start our app as a background process.
+
+sudo service supervisor restart
+And that's it! If we visit our public IP address we should see our app running, even if we close our ubuntu terminal.

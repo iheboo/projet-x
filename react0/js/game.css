@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Press Start 2P', monospace;
+}
+    
+h2 {
+    text-align: center;
+    margin: 20px 0;
+}
+    
+#the-dojo {
+    width: 320px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+}
+    
+.tatami {
+    background-color: wheat;
+    height: 32px;
+    width: 32px;
+    border: 2px solid #ccc;
+    border-right: 2px solid #999;
+    border-bottom: 2px solid #999;
+}
+    
+.tatami:active {
+    border: 2px solid #999;
+    border-right: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+}
+#face {
+    background-color: #f3f3f3;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 6px solid black;
+    position: relative;
+  }
+  
+  #minutes, #hour, #seconds {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-origin: top center;
+  }
+  
+  #hour {
+    background-color: black;
+    height: 100px;
+    width: 8px;
+  }
+  
+  #minutes {
+    background-color: grey;
+    height: 120px;
+    width: 4px;
+  }
+  
+  #seconds {
+    background-color: red;
+    height: 130px;
+    width: 2px;
+  }
